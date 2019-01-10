@@ -15,19 +15,26 @@ const client = new ApolloClient({
   },
 });
 
+let currentCursor = null;
+
 const GET_REPOSITORIES_OF_ORGANIZATION = gql`
-  query($organization: String!) {
+  query($organization: String!, $cursor: String) {
     organization(login: $organization) {
       name
       url
       repositories(
         first: 5
         orderBy: { direction: ASC, field: STARGAZERS }
+        after: $cursor
       ) {
         edges {
           node {
             ...repository
           }
+        }
+        pageInfo {
+          endCursor
+          hasNextPage
         }
       }
     }
@@ -47,9 +54,9 @@ client
     variables: { organization: 'the-road-to-learn-react' },
   })
   .then(res => {
-    res.data.organization.repositories.edges.forEach(edge => {
-      console.log(edge.node.stargazers.totalCount);
-    });
+    console.log(res.data.organization.repositories.pageInfo);
+    currentCursor =
+      res.data.organization.repositories.pageInfo.endCursor;
   });
 
 const userCredentials = { firstname: 'Robin' };
