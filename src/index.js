@@ -59,6 +59,17 @@ const ADD_STAR = gql`
   }
 `;
 
+const REMOVE_STAR = gql`
+  mutation RemoveStar($repositoryId: ID!) {
+    removeStar(input: { starrableId: $repositoryId }) {
+      starrable {
+        id
+        viewerHasStarred
+      }
+    }
+  }
+`;
+
 client
   .mutate({
     mutation: ADD_STAR,
@@ -67,6 +78,17 @@ client
     },
   })
   .then(console.log);
+
+client
+  .mutate({
+    mutation: REMOVE_STAR,
+    variables: {
+      repositoryId: 'MDEwOlJlcG9zaXRvcnk2MzM1MjkwNw==',
+    },
+  })
+  .then(res => {
+    console.log('removed star', res.data.removeStar.starrable);
+  });
 
 client
   .query({
